@@ -1,13 +1,14 @@
-from setuptools import Extension, setup
+from setuptools import Extension, find_packages, setup
 import numpy
 
 
 setup(
-    name="resample3dC",
+    name="resample3",
     version="0.0.0",
+    packages=find_packages(),
     ext_modules=[
         Extension(
-            "resample3dC",
+            "resample3.resample3C",
             ["resample3dC.c"],
             include_dirs=[numpy.get_include()],
         )

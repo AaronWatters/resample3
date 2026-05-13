@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import resample3dC
+from resample3 import resample3C
 
 
 DTYPES = [np.uint8, np.int16, np.int32, np.float32, np.float64]
@@ -32,7 +32,7 @@ def test_identity_mapping(dtype):
     matrix = np.eye(4, dtype=np.float64)
     default_value = -7.25
 
-    resample3dC.resample3C(input_volume, output_volume, matrix, default_value)
+    resample3C(input_volume, output_volume, matrix, default_value)
 
     assert np.array_equal(output_volume, input_volume)
 
@@ -52,7 +52,7 @@ def test_rotation_90_degrees_about_z(dtype):
     )
     default_value = -3.5
 
-    resample3dC.resample3C(input_volume, output_volume, matrix, default_value)
+    resample3C(input_volume, output_volume, matrix, default_value)
     expected = python_reference(input_volume, output_volume.shape, matrix, default_value)
 
     assert np.array_equal(output_volume, expected)
@@ -64,7 +64,7 @@ def test_raises_for_non_contiguous_array():
     matrix = np.eye(4, dtype=np.float64)
 
     with pytest.raises(ValueError):
-        resample3dC.resample3C(input_volume, output_volume, matrix, 0.0)
+        resample3C(input_volume, output_volume, matrix, 0.0)
 
 
 def test_raises_for_dtype_mismatch():
@@ -73,4 +73,4 @@ def test_raises_for_dtype_mismatch():
     matrix = np.eye(4, dtype=np.float64)
 
     with pytest.raises(TypeError):
-        resample3dC.resample3C(input_volume, output_volume, matrix, 0.0)
+        resample3C(input_volume, output_volume, matrix, 0.0)
