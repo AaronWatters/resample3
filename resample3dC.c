@@ -91,6 +91,14 @@ static PyObject *resample3C(PyObject *self, PyObject *args)
         return NULL;
     }
 
+    if (dtype != NPY_FLOAT64 && dtype != NPY_FLOAT32
+        && dtype != NPY_UINT8 && dtype != NPY_INT16 && dtype != NPY_INT32) {
+        PyErr_SetString(
+            PyExc_TypeError,
+            "unsupported dtype: supported dtypes are uint8, int16, int32, float32, float64");
+        return NULL;
+    }
+
     const npy_intp src0 = PyArray_DIM(input, 0);
     const npy_intp src1 = PyArray_DIM(input, 1);
     const npy_intp src2 = PyArray_DIM(input, 2);
@@ -99,6 +107,7 @@ static PyObject *resample3C(PyObject *self, PyObject *args)
     const npy_intp dst2 = PyArray_DIM(output, 2);
     const double *m = (const double *)PyArray_DATA(matrix);
 
+    Py_BEGIN_ALLOW_THREADS
     switch (dtype) {
         case NPY_FLOAT64:
             resample_double(
@@ -125,12 +134,8 @@ static PyObject *resample3C(PyObject *self, PyObject *args)
                 (int32_t *)PyArray_DATA(input), (int32_t *)PyArray_DATA(output),
                 src0, src1, src2, dst0, dst1, dst2, m, (int32_t)default_value);
             break;
-        default:
-            PyErr_SetString(
-                PyExc_TypeError,
-                "unsupported dtype: supported dtypes are uint8, int16, int32, float32, float64");
-            return NULL;
     }
+    Py_END_ALLOW_THREADS
 
     Py_RETURN_NONE;
 }
