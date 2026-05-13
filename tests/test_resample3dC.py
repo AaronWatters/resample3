@@ -62,7 +62,7 @@ def test_raises_for_non_contiguous_array():
     output_volume = np.empty((3, 3, 3), dtype=np.float64)
     matrix = np.eye(4, dtype=np.float64)
 
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         resample3dC.resample3C(input_volume, output_volume, matrix, 0.0)
 
 
@@ -71,5 +71,5 @@ def test_raises_for_dtype_mismatch():
     output_volume = np.empty((3, 3, 3), dtype=np.float32)
     matrix = np.eye(4, dtype=np.float64)
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         resample3dC.resample3C(input_volume, output_volume, matrix, 0.0)
