@@ -17,12 +17,12 @@ static void resample_##SUFFIX(                                                  
                 const double x = m[0] * (double)i + m[1] * (double)j + m[2] * (double)k + m[3]; \
                 const double y = m[4] * (double)i + m[5] * (double)j + m[6] * (double)k + m[7]; \
                 const double z = m[8] * (double)i + m[9] * (double)j + m[10] * (double)k + m[11]; \
-                const int ii = (int)x;                                                  \
-                const int jj = (int)y;                                                  \
-                const int kk = (int)z;                                                  \
+                const npy_intp ii = (npy_intp)((int)x);                                 \
+                const npy_intp jj = (npy_intp)((int)y);                                 \
+                const npy_intp kk = (npy_intp)((int)z);                                 \
                 if (ii >= 0 && jj >= 0 && kk >= 0                                       \
-                    && (npy_intp)ii < src0 && (npy_intp)jj < src1 && (npy_intp)kk < src2) { \
-                    const npy_intp in_index = ((npy_intp)ii * src1 + (npy_intp)jj) * src2 + (npy_intp)kk; \
+                    && ii < src0 && jj < src1 && kk < src2) {                           \
+                    const npy_intp in_index = (ii * src1 + jj) * src2 + kk;             \
                     dst[out_index] = src[in_index];                                      \
                 } else {                                                                 \
                     dst[out_index] = default_value;                                      \

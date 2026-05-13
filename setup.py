@@ -3,7 +3,7 @@ import numpy
 
 
 setup(
-    name="resample3",
+    name="resample3dC",
     version="0.0.0",
     ext_modules=[
         Extension(

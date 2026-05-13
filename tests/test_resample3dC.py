@@ -10,7 +10,7 @@ DTYPES = [np.uint8, np.int16, np.int32, np.float32, np.float64]
 def python_reference(input_volume, output_shape, matrix, default_value):
     output = np.empty(output_shape, dtype=input_volume.dtype)
     src0, src1, src2 = input_volume.shape
-    cast_default = np.array(default_value).astype(input_volume.dtype, casting="unsafe").item()
+    default_value_cast = np.array(default_value).astype(input_volume.dtype, casting="unsafe").item()
     for i in range(output_shape[0]):
         for j in range(output_shape[1]):
             for k in range(output_shape[2]):
@@ -21,7 +21,7 @@ def python_reference(input_volume, output_shape, matrix, default_value):
                 if 0 <= ii < src0 and 0 <= jj < src1 and 0 <= kk < src2:
                     output[i, j, k] = input_volume[ii, jj, kk]
                 else:
-                    output[i, j, k] = cast_default
+                    output[i, j, k] = default_value_cast
     return output
 
 
