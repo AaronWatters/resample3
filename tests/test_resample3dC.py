@@ -10,6 +10,7 @@ DTYPES = [np.uint8, np.int16, np.int32, np.float32, np.float64]
 def python_reference(input_volume, output_shape, matrix, default_value):
     output = np.empty(output_shape, dtype=input_volume.dtype)
     src0, src1, src2 = input_volume.shape
+    cast_default = np.array(default_value).astype(input_volume.dtype, casting="unsafe").item()
     for i in range(output_shape[0]):
         for j in range(output_shape[1]):
             for k in range(output_shape[2]):
@@ -20,13 +21,13 @@ def python_reference(input_volume, output_shape, matrix, default_value):
                 if 0 <= ii < src0 and 0 <= jj < src1 and 0 <= kk < src2:
                     output[i, j, k] = input_volume[ii, jj, kk]
                 else:
-                    output[i, j, k] = np.array(default_value, dtype=input_volume.dtype)
+                    output[i, j, k] = cast_default
     return output
 
 
 @pytest.mark.parametrize("dtype", DTYPES)
 def test_identity_mapping(dtype):
-    input_volume = np.arange(27, dtype=np.int64).reshape(3, 3, 3).astype(dtype)
+    input_volume = np.arange(27, dtype=dtype).reshape(3, 3, 3)
     output_volume = np.empty((3, 3, 3), dtype=dtype)
     matrix = np.eye(4, dtype=np.float64)
     default_value = -7.25
@@ -38,7 +39,7 @@ def test_identity_mapping(dtype):
 
 @pytest.mark.parametrize("dtype", DTYPES)
 def test_rotation_90_degrees_about_z(dtype):
-    input_volume = np.arange(27, dtype=np.int64).reshape(3, 3, 3).astype(dtype)
+    input_volume = np.arange(27, dtype=dtype).reshape(3, 3, 3)
     output_volume = np.empty((3, 3, 3), dtype=dtype)
     matrix = np.array(
         [
