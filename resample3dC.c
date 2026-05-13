@@ -17,10 +17,16 @@ static void resample_##SUFFIX(                                                  
                 const double x = m[0] * (double)i + m[1] * (double)j + m[2] * (double)k + m[3]; \
                 const double y = m[4] * (double)i + m[5] * (double)j + m[6] * (double)k + m[7]; \
                 const double z = m[8] * (double)i + m[9] * (double)j + m[10] * (double)k + m[11]; \
-                const npy_intp ii = (npy_intp)((int)x);                                 \
-                const npy_intp jj = (npy_intp)((int)y);                                 \
-                const npy_intp kk = (npy_intp)((int)z);                                 \
-                if (ii >= 0 && jj >= 0 && kk >= 0                                       \
+                if (x <= (double)NPY_MIN_INTP || x >= (double)NPY_MAX_INTP              \
+                    || y <= (double)NPY_MIN_INTP || y >= (double)NPY_MAX_INTP           \
+                    || z <= (double)NPY_MIN_INTP || z >= (double)NPY_MAX_INTP) {        \
+                    dst[out_index] = default_value;                                      \
+                    continue;                                                            \
+                }                                                                        \
+                const npy_intp ii = (npy_intp)x;                                         \
+                const npy_intp jj = (npy_intp)y;                                         \
+                const npy_intp kk = (npy_intp)z;                                         \
+                if (ii >= 0 && jj >= 0 && kk >= 0                                        \
                     && ii < src0 && jj < src1 && kk < src2) {                           \
                     const npy_intp in_index = (ii * src1 + jj) * src2 + kk;             \
                     dst[out_index] = src[in_index];                                      \
