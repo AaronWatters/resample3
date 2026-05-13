@@ -140,16 +140,16 @@ static PyMethodDef ResampleMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef resample3dCmodule = {
+static struct PyModuleDef resample3Cmodule = {
     PyModuleDef_HEAD_INIT,
-    "resample3dC",
+    "resample3C",
     NULL,
     -1,
     ResampleMethods
 };
 
-PyMODINIT_FUNC PyInit_resample3dC(void)
+PyMODINIT_FUNC PyInit_resample3C(void)
 {
     import_array();
-    return PyModule_Create(&resample3dCmodule);
+    return PyModule_Create(&resample3Cmodule);
 }
