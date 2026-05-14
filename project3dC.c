@@ -8,14 +8,8 @@
  *
  * Generates a typed max-value projection function max_proj_SUFFIX.
  *
- * The function:
- *   1. Fills the output plane with min_val.
- *   2. Iterates over every voxel in the input volume.
- *   3. Maps each voxel's index through input_to_output_matrix
- *      (stored in m, 16 doubles, row-major) to obtain a 2-D output-plane
- *      pixel index (pi, pj).
- *   4. If (pi, pj) is within the output plane, stores the voxel value when
- *      it is greater than the current value at that pixel.
+ * 'm' is the input_to_output_matrix (16 doubles, row-major): it maps input
+ * voxel coordinates (x, y, z, 1) to output-plane pixel coordinates.
  */
 #define MAX_PROJ_KERNEL(TYPE, SUFFIX)                                               \
 static void max_proj_##SUFFIX(                                                      \

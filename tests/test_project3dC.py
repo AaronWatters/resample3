@@ -10,8 +10,9 @@ DTYPES = [np.uint8, np.int16, np.int32, np.float32, np.float64]
 def python_reference(input_volume, output_shape, matrix, min_value):
     """Pure-Python reference implementation of max_value3C.
 
-    Uses input_to_output_matrix directly to project each input voxel to the
-    output plane.
+    'matrix' must be the input_to_output_matrix (4x4 float64): applied directly
+    to each input voxel coordinate (x, y, z, 1) to obtain the output pixel
+    (pi, pj).
     """
     min_val_cast = np.array(min_value).astype(input_volume.dtype, casting="unsafe").item()
     output = np.full(output_shape, min_val_cast, dtype=input_volume.dtype)
