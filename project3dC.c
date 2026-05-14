@@ -2,62 +2,6 @@
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include <stdint.h>
-#include <math.h>
-
-/*
- * Compute the inverse of a 4x4 row-major matrix m into inv_out using the
- * cofactor / adjugate method.  Returns 1 on success, 0 if the matrix is
- * (near-)singular.
- */
-static int mat4_inverse(const double *m, double *inv_out)
-{
-    double inv[16];
-
-    inv[0]  =  m[5]*m[10]*m[15] - m[5]*m[11]*m[14] - m[9]*m[6]*m[15]
-             + m[9]*m[7]*m[14]  + m[13]*m[6]*m[11]  - m[13]*m[7]*m[10];
-    inv[4]  = -m[4]*m[10]*m[15] + m[4]*m[11]*m[14]  + m[8]*m[6]*m[15]
-             - m[8]*m[7]*m[14]  - m[12]*m[6]*m[11]  + m[12]*m[7]*m[10];
-    inv[8]  =  m[4]*m[9]*m[15]  - m[4]*m[11]*m[13]  - m[8]*m[5]*m[15]
-             + m[8]*m[7]*m[13]  + m[12]*m[5]*m[11]  - m[12]*m[7]*m[9];
-    inv[12] = -m[4]*m[9]*m[14]  + m[4]*m[10]*m[13]  + m[8]*m[5]*m[14]
-             - m[8]*m[6]*m[13]  - m[12]*m[5]*m[10]  + m[12]*m[6]*m[9];
-
-    inv[1]  = -m[1]*m[10]*m[15] + m[1]*m[11]*m[14]  + m[9]*m[2]*m[15]
-             - m[9]*m[3]*m[14]  - m[13]*m[2]*m[11]  + m[13]*m[3]*m[10];
-    inv[5]  =  m[0]*m[10]*m[15] - m[0]*m[11]*m[14]  - m[8]*m[2]*m[15]
-             + m[8]*m[3]*m[14]  + m[12]*m[2]*m[11]  - m[12]*m[3]*m[10];
-    inv[9]  = -m[0]*m[9]*m[15]  + m[0]*m[11]*m[13]  + m[8]*m[1]*m[15]
-             - m[8]*m[3]*m[13]  - m[12]*m[1]*m[11]  + m[12]*m[3]*m[9];
-    inv[13] =  m[0]*m[9]*m[14]  - m[0]*m[10]*m[13]  - m[8]*m[1]*m[14]
-             + m[8]*m[2]*m[13]  + m[12]*m[1]*m[10]  - m[12]*m[2]*m[9];
-
-    inv[2]  =  m[1]*m[6]*m[15]  - m[1]*m[7]*m[14]   - m[5]*m[2]*m[15]
-             + m[5]*m[3]*m[14]  + m[13]*m[2]*m[7]   - m[13]*m[3]*m[6];
-    inv[6]  = -m[0]*m[6]*m[15]  + m[0]*m[7]*m[14]   + m[4]*m[2]*m[15]
-             - m[4]*m[3]*m[14]  - m[12]*m[2]*m[7]   + m[12]*m[3]*m[6];
-    inv[10] =  m[0]*m[5]*m[15]  - m[0]*m[7]*m[13]   - m[4]*m[1]*m[15]
-             + m[4]*m[3]*m[13]  + m[12]*m[1]*m[7]   - m[12]*m[3]*m[5];
-    inv[14] = -m[0]*m[5]*m[14]  + m[0]*m[6]*m[13]   + m[4]*m[1]*m[14]
-             - m[4]*m[2]*m[13]  - m[12]*m[1]*m[6]   + m[12]*m[2]*m[5];
-
-    inv[3]  = -m[1]*m[6]*m[11]  + m[1]*m[7]*m[10]   + m[5]*m[2]*m[11]
-             - m[5]*m[3]*m[10]  - m[9]*m[2]*m[7]    + m[9]*m[3]*m[6];
-    inv[7]  =  m[0]*m[6]*m[11]  - m[0]*m[7]*m[10]   - m[4]*m[2]*m[11]
-             + m[4]*m[3]*m[10]  + m[8]*m[2]*m[7]    - m[8]*m[3]*m[6];
-    inv[11] = -m[0]*m[5]*m[11]  + m[0]*m[7]*m[9]    + m[4]*m[1]*m[11]
-             - m[4]*m[3]*m[9]   - m[8]*m[1]*m[7]    + m[8]*m[3]*m[5];
-    inv[15] =  m[0]*m[5]*m[10]  - m[0]*m[6]*m[9]    - m[4]*m[1]*m[10]
-             + m[4]*m[2]*m[9]   + m[8]*m[1]*m[6]    - m[8]*m[2]*m[5];
-
-    const double det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[12];
-    if (fabs(det) < 1e-12)
-        return 0;
-
-    const double inv_det = 1.0 / det;
-    for (int i = 0; i < 16; i++)
-        inv_out[i] = inv[i] * inv_det;
-    return 1;
-}
 
 /*
  * MAX_PROJ_KERNEL(TYPE, SUFFIX)
@@ -67,8 +11,8 @@ static int mat4_inverse(const double *m, double *inv_out)
  * The function:
  *   1. Fills the output plane with min_val.
  *   2. Iterates over every voxel in the input volume.
- *   3. Maps each voxel's index through the inverse of output_to_input_matrix
- *      (stored in mi, 16 doubles, row-major) to obtain a 2-D output-plane
+ *   3. Maps each voxel's index through input_to_output_matrix
+ *      (stored in m, 16 doubles, row-major) to obtain a 2-D output-plane
  *      pixel index (pi, pj).
  *   4. If (pi, pj) is within the output plane, stores the voxel value when
  *      it is greater than the current value at that pixel.
@@ -78,7 +22,7 @@ static void max_proj_##SUFFIX(                                                  
     const TYPE *src, TYPE *dst,                                                     \
     npy_intp src0, npy_intp src1, npy_intp src2,                                    \
     npy_intp dst0, npy_intp dst1,                                                   \
-    const double *mi, TYPE min_val)                                                 \
+    const double *m, TYPE min_val)                                                  \
 {                                                                                    \
     for (npy_intp _i = 0; _i < dst0; _i++)                                          \
         for (npy_intp _j = 0; _j < dst1; _j++)                                      \
@@ -86,10 +30,10 @@ static void max_proj_##SUFFIX(                                                  
     for (npy_intp x = 0; x < src0; x++) {                                           \
         for (npy_intp y = 0; y < src1; y++) {                                       \
             for (npy_intp z = 0; z < src2; z++) {                                   \
-                const double pif = mi[0]*(double)x + mi[1]*(double)y               \
-                                 + mi[2]*(double)z + mi[3];                         \
-                const double pjf = mi[4]*(double)x + mi[5]*(double)y               \
-                                 + mi[6]*(double)z + mi[7];                         \
+                const double pif = m[0]*(double)x + m[1]*(double)y                 \
+                                 + m[2]*(double)z + m[3];                           \
+                const double pjf = m[4]*(double)x + m[5]*(double)y                 \
+                                 + m[6]*(double)z + m[7];                           \
                 if (pif < 0.0 || pif >= (double)dst0                                \
                     || pjf < 0.0 || pjf >= (double)dst1)                            \
                     continue;                                                        \
@@ -173,12 +117,6 @@ static PyObject *max_value3C(PyObject *self, PyObject *args)
     }
 
     const double *m = (const double *)PyArray_DATA(matrix);
-    double mi[16];
-    if (!mat4_inverse(m, mi)) {
-        PyErr_SetString(PyExc_ValueError,
-            "output_to_input_matrix is singular or near-singular");
-        return NULL;
-    }
 
     const npy_intp src0 = PyArray_DIM(input, 0);
     const npy_intp src1 = PyArray_DIM(input, 1);
@@ -192,31 +130,31 @@ static PyObject *max_value3C(PyObject *self, PyObject *args)
             max_proj_double(
                 (const double *)PyArray_DATA(input),
                 (double *)PyArray_DATA(output),
-                src0, src1, src2, dst0, dst1, mi, (double)min_value);
+                src0, src1, src2, dst0, dst1, m, (double)min_value);
             break;
         case NPY_FLOAT32:
             max_proj_float(
                 (const float *)PyArray_DATA(input),
                 (float *)PyArray_DATA(output),
-                src0, src1, src2, dst0, dst1, mi, (float)min_value);
+                src0, src1, src2, dst0, dst1, m, (float)min_value);
             break;
         case NPY_UINT8:
             max_proj_uint8(
                 (const uint8_t *)PyArray_DATA(input),
                 (uint8_t *)PyArray_DATA(output),
-                src0, src1, src2, dst0, dst1, mi, (uint8_t)min_value);
+                src0, src1, src2, dst0, dst1, m, (uint8_t)min_value);
             break;
         case NPY_INT16:
             max_proj_int16(
                 (const int16_t *)PyArray_DATA(input),
                 (int16_t *)PyArray_DATA(output),
-                src0, src1, src2, dst0, dst1, mi, (int16_t)min_value);
+                src0, src1, src2, dst0, dst1, m, (int16_t)min_value);
             break;
         case NPY_INT32:
             max_proj_int32(
                 (const int32_t *)PyArray_DATA(input),
                 (int32_t *)PyArray_DATA(output),
-                src0, src1, src2, dst0, dst1, mi, (int32_t)min_value);
+                src0, src1, src2, dst0, dst1, m, (int32_t)min_value);
             break;
     }
     Py_END_ALLOW_THREADS

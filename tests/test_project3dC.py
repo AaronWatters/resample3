@@ -10,10 +10,9 @@ DTYPES = [np.uint8, np.int16, np.int32, np.float32, np.float64]
 def python_reference(input_volume, output_shape, matrix, min_value):
     """Pure-Python reference implementation of max_value3C.
 
-    Uses numpy.linalg.inv to invert the output_to_input_matrix, then iterates
-    over all input voxels and projects each to the output plane.
+    Uses input_to_output_matrix directly to project each input voxel to the
+    output plane.
     """
-    m_inv = np.linalg.inv(matrix)
     min_val_cast = np.array(min_value).astype(input_volume.dtype, casting="unsafe").item()
     output = np.full(output_shape, min_val_cast, dtype=input_volume.dtype)
     src0, src1, src2 = input_volume.shape
@@ -21,7 +20,7 @@ def python_reference(input_volume, output_shape, matrix, min_value):
     for x in range(src0):
         for y in range(src1):
             for z in range(src2):
-                coords = m_inv @ np.array([x, y, z, 1.0], dtype=np.float64)
+                coords = matrix @ np.array([x, y, z, 1.0], dtype=np.float64)
                 pi_f, pj_f = coords[0], coords[1]
                 if 0.0 <= pi_f < dst0 and 0.0 <= pj_f < dst1:
                     pi, pj = int(pi_f), int(pj_f)
@@ -65,13 +64,13 @@ def test_rotation_90_degrees(dtype):
     """A 90-degree rotation around the z-axis produces the correct MIP."""
     input_volume = np.arange(27, dtype=dtype).reshape(3, 3, 3)
     output_plane = np.empty((3, 3), dtype=dtype)
-    # output_to_input_matrix: maps output (i, j, k) -> input (2-j, i, k)
+    # input_to_output_matrix: maps input (x, y, z) -> output (pi=y, pj=2-x)
     matrix = np.array(
         [
-            [0.0, -1.0, 0.0, 2.0],
-            [1.0,  0.0, 0.0, 0.0],
-            [0.0,  0.0, 1.0, 0.0],
-            [0.0,  0.0, 0.0, 1.0],
+            [ 0.0, 1.0, 0.0, 0.0],
+            [-1.0, 0.0, 0.0, 2.0],
+            [ 0.0, 0.0, 1.0, 0.0],
+            [ 0.0, 0.0, 0.0, 1.0],
         ],
         dtype=np.float64,
     )
@@ -123,13 +122,5 @@ def test_raises_for_non_contiguous_output():
     input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
     output_plane = np.empty((3, 6), dtype=np.float64)[:, ::2]
     matrix = np.eye(4, dtype=np.float64)
-    with pytest.raises(ValueError):
-        max_value3C(input_volume, output_plane, matrix, 0.0)
-
-
-def test_raises_for_singular_matrix():
-    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
-    output_plane = np.empty((3, 3), dtype=np.float64)
-    matrix = np.zeros((4, 4), dtype=np.float64)
     with pytest.raises(ValueError):
         max_value3C(input_volume, output_plane, matrix, 0.0)
