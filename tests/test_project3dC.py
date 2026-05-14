@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from resample3 import max_value3C
+from resample3 import max_value3C, extrude3C
 
 
 DTYPES = [np.uint8, np.int16, np.int32, np.float32, np.float64]
@@ -31,6 +31,28 @@ def python_reference(input_volume, output_shape, matrix, min_value):
     return output
 
 
+def python_reference_extrude(input_volume, output_shape, matrix, min_value):
+    min_val_cast = np.array(min_value).astype(input_volume.dtype, casting="unsafe").item()
+    output = np.full(output_shape, min_val_cast, dtype=input_volume.dtype)
+    depths = np.full(output_shape, np.inf, dtype=np.float64)
+    src0, src1, src2 = input_volume.shape
+    dst0, dst1 = output_shape
+    for x in range(src0):
+        for y in range(src1):
+            for z in range(src2):
+                val = input_volume[x, y, z]
+                if val <= min_val_cast:
+                    continue
+                coords = matrix @ np.array([x, y, z, 1.0], dtype=np.float64)
+                pi_f, pj_f, depth_f = coords[0], coords[1], coords[2]
+                if 0.0 <= pi_f < dst0 and 0.0 <= pj_f < dst1:
+                    pi, pj = int(pi_f), int(pj_f)
+                    if depth_f < depths[pi, pj]:
+                        output[pi, pj] = val
+                        depths[pi, pj] = depth_f
+    return output, depths
+
+
 def _min_value(dtype):
     """Return a safe min_value sentinel for each dtype."""
     if dtype == np.uint8:
@@ -54,6 +76,23 @@ def test_identity_mapping(dtype):
 
     expected = python_reference(input_volume, (3, 3), matrix, min_value)
     assert np.array_equal(output_plane, expected)
+
+
+@pytest.mark.parametrize("dtype", DTYPES)
+def test_extrude_identity_mapping(dtype):
+    input_volume = np.arange(8, dtype=dtype).reshape(2, 2, 2)
+    output_plane = np.empty((3, 3), dtype=dtype)
+    output_depths = np.empty((3, 3), dtype=np.float64)
+    matrix = np.eye(4, dtype=np.float64)
+    min_value = _min_value(dtype)
+
+    extrude3C(output_plane, output_depths, input_volume, matrix, min_value)
+
+    expected_plane, expected_depths = python_reference_extrude(input_volume, (3, 3), matrix, min_value)
+    assert np.array_equal(output_plane, expected_plane)
+    assert np.array_equal(output_depths, expected_depths)
+    assert output_plane[2, 2] == np.array(min_value).astype(dtype, casting="unsafe").item()
+    assert np.isinf(output_depths[2, 2])
 
 
 # ---------------------------------------------------------------------------
@@ -81,6 +120,31 @@ def test_rotation_90_degrees(dtype):
 
     expected = python_reference(input_volume, (3, 3), matrix, min_value)
     assert np.array_equal(output_plane, expected)
+
+
+@pytest.mark.parametrize("dtype", DTYPES)
+def test_extrude_rotation_90_degrees(dtype):
+    input_volume = np.arange(8, dtype=dtype).reshape(2, 2, 2)
+    output_plane = np.empty((4, 4), dtype=dtype)
+    output_depths = np.empty((4, 4), dtype=np.float64)
+    matrix = np.array(
+        [
+            [0.0, 1.0, 0.0, 0.0],
+            [-1.0, 0.0, 0.0, 1.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+        dtype=np.float64,
+    )
+    min_value = _min_value(dtype)
+
+    extrude3C(output_plane, output_depths, input_volume, matrix, min_value)
+
+    expected_plane, expected_depths = python_reference_extrude(input_volume, (4, 4), matrix, min_value)
+    assert np.array_equal(output_plane, expected_plane)
+    assert np.array_equal(output_depths, expected_depths)
+    assert output_plane[3, 3] == np.array(min_value).astype(dtype, casting="unsafe").item()
+    assert np.isinf(output_depths[3, 3])
 
 
 # ---------------------------------------------------------------------------
@@ -125,3 +189,93 @@ def test_raises_for_non_contiguous_output():
     matrix = np.eye(4, dtype=np.float64)
     with pytest.raises(ValueError):
         max_value3C(input_volume, output_plane, matrix, 0.0)
+
+
+def test_extrude_raises_for_wrong_input_ndim():
+    output_plane = np.empty((3, 3), dtype=np.float64)
+    output_depths = np.empty((3, 3), dtype=np.float64)
+    input_volume = np.arange(9, dtype=np.float64).reshape(3, 3)
+    matrix = np.eye(4, dtype=np.float64)
+    with pytest.raises(ValueError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
+
+
+def test_extrude_raises_for_wrong_output_ndim():
+    output_plane = np.empty((3, 3, 1), dtype=np.float64)
+    output_depths = np.empty((3, 3), dtype=np.float64)
+    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
+    matrix = np.eye(4, dtype=np.float64)
+    with pytest.raises(ValueError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
+
+
+def test_extrude_raises_for_depth_shape_mismatch():
+    output_plane = np.empty((3, 3), dtype=np.float64)
+    output_depths = np.empty((2, 3), dtype=np.float64)
+    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
+    matrix = np.eye(4, dtype=np.float64)
+    with pytest.raises(ValueError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
+
+
+def test_extrude_raises_for_dtype_mismatch():
+    output_plane = np.empty((3, 3), dtype=np.float32)
+    output_depths = np.empty((3, 3), dtype=np.float64)
+    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
+    matrix = np.eye(4, dtype=np.float64)
+    with pytest.raises(TypeError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
+
+
+def test_extrude_raises_for_non_float64_depths():
+    output_plane = np.empty((3, 3), dtype=np.float64)
+    output_depths = np.empty((3, 3), dtype=np.float32)
+    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
+    matrix = np.eye(4, dtype=np.float64)
+    with pytest.raises(TypeError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
+
+
+def test_extrude_raises_for_non_contiguous_input():
+    output_plane = np.empty((3, 3), dtype=np.float64)
+    output_depths = np.empty((3, 3), dtype=np.float64)
+    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)[:, :, ::-1]
+    matrix = np.eye(4, dtype=np.float64)
+    with pytest.raises(ValueError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
+
+
+def test_extrude_raises_for_non_contiguous_output():
+    output_plane = np.empty((3, 6), dtype=np.float64)[:, ::2]
+    output_depths = np.empty((3, 3), dtype=np.float64)
+    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
+    matrix = np.eye(4, dtype=np.float64)
+    with pytest.raises(ValueError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
+
+
+def test_extrude_raises_for_non_contiguous_depths():
+    output_plane = np.empty((3, 3), dtype=np.float64)
+    output_depths = np.empty((3, 6), dtype=np.float64)[:, ::2]
+    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
+    matrix = np.eye(4, dtype=np.float64)
+    with pytest.raises(ValueError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
+
+
+def test_extrude_raises_for_wrong_matrix_shape():
+    output_plane = np.empty((3, 3), dtype=np.float64)
+    output_depths = np.empty((3, 3), dtype=np.float64)
+    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
+    matrix = np.eye(3, dtype=np.float64)
+    with pytest.raises(ValueError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
+
+
+def test_extrude_raises_for_wrong_matrix_dtype():
+    output_plane = np.empty((3, 3), dtype=np.float64)
+    output_depths = np.empty((3, 3), dtype=np.float64)
+    input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
+    matrix = np.eye(4, dtype=np.float32)
+    with pytest.raises(TypeError):
+        extrude3C(output_plane, output_depths, input_volume, matrix, 0.0)
