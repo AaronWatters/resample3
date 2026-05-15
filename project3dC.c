@@ -1,6 +1,7 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <numpy/arrayobject.h>
+#include <math.h>
 #include <stdint.h>
 
 /*
@@ -24,19 +25,30 @@ static void max_proj_##SUFFIX(                                                  
     for (npy_intp x = 0; x < src0; x++) {                                           \
         for (npy_intp y = 0; y < src1; y++) {                                       \
             for (npy_intp z = 0; z < src2; z++) {                                   \
-                const double pif = m[0]*(double)x + m[1]*(double)y                 \
-                                 + m[2]*(double)z + m[3];                           \
-                const double pjf = m[4]*(double)x + m[5]*(double)y                 \
-                                 + m[6]*(double)z + m[7];                           \
-                if (pif < 0.0 || pif >= (double)dst0                                \
-                    || pjf < 0.0 || pjf >= (double)dst1)                            \
-                    continue;                                                        \
-                const npy_intp pi = (npy_intp)pif;                                  \
-                const npy_intp pj = (npy_intp)pjf;                                  \
+                const double pif = m[0] * (double)x + m[1] * (double)y            \
+                                 + m[2] * (double)z + m[3];                         \
+                const double pjf = m[4] * (double)x + m[5] * (double)y            \
+                                 + m[6] * (double)z + m[7];                         \
                 const TYPE val = src[(x * src1 + y) * src2 + z];                   \
-                TYPE *out_pixel = &dst[pi * dst1 + pj];                            \
-                if (val > *out_pixel)                                               \
-                    *out_pixel = val;                                               \
+                if (pif < 0.0 || pif >= (double)dst0 || pjf < 0.0 || pjf >= (double)dst1) \
+                    continue;                                                        \
+                npy_intp pi0 = (npy_intp)pif;                                        \
+                npy_intp pj0 = (npy_intp)pjf;                                        \
+                const npy_intp pi_span = (npy_intp)ceil(fabs(m[0]) + fabs(m[1]) + fabs(m[2])); \
+                const npy_intp pj_span = (npy_intp)ceil(fabs(m[4]) + fabs(m[5]) + fabs(m[6])); \
+                npy_intp pi1 = pi0 + (pi_span > 0 ? pi_span : 1);                    \
+                npy_intp pj1 = pj0 + (pj_span > 0 ? pj_span : 1);                    \
+                if (pi0 < 0) pi0 = 0;                                               \
+                if (pj0 < 0) pj0 = 0;                                               \
+                if (pi1 > dst0) pi1 = dst0;                                         \
+                if (pj1 > dst1) pj1 = dst1;                                         \
+                for (npy_intp pi = pi0; pi < pi1; pi++) {                           \
+                    for (npy_intp pj = pj0; pj < pj1; pj++) {                       \
+                        TYPE *out_pixel = &dst[pi * dst1 + pj];                     \
+                        if (val > *out_pixel)                                        \
+                            *out_pixel = val;                                        \
+                    }                                                                \
+                }                                                                    \
             }                                                                       \
         }                                                                           \
     }                                                                               \

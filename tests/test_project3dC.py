@@ -37,6 +37,24 @@ def _min_value(dtype):
         return 0.0
     return -1.0
 
+# matrix expansion test
+def test_matrix_expansion():
+    """Test that if the output is bigger thant the input the values infill correctly."""
+    input_volume = (np.arange(8, dtype=np.float64).reshape(2, 2, 2)) + 1.0
+    output_plane = np.zeros((8, 8), dtype=np.float64)
+    matrix = np.eye(4, dtype=np.float64) * 4.0  # scale by 4, so each input voxel maps to a 4x4 block in output
+    matrix[3, 3] = 1.0  # homogeneous coordinate
+    min_value = 0.0
+    max_value3C(input_volume, output_plane, matrix, min_value)
+    # output should have no zeros, and each 4x4 block should have the same value corresponding to the input voxel
+    assert np.all(output_plane > 0.0)
+    for x in range(2):
+        for y in range(2):
+            val = np.max(input_volume[x, y, :])
+            pi_start, pj_start = x * 4, y * 4
+            block = output_plane[pi_start:pi_start+4, pj_start:pj_start+4]
+            assert np.all(block == val), f"Block at ({pi_start}:{pi_start+4}, {pj_start}:{pj_start+4}) should be {val}"
+
 
 # ---------------------------------------------------------------------------
 # Identity-mapping tests
