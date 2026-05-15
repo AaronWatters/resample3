@@ -7,36 +7,36 @@ from resample3 import extrude3C
 DTYPES = [np.uint8, np.int16, np.int32, np.float32, np.float64]
 
 
-def python_extrude_reference(output_shape, input_volume, matrix, min_value):
-    min_val_cast = np.array(min_value).astype(input_volume.dtype, casting="unsafe").item()
-    output_plane = np.full(output_shape, min_val_cast, dtype=input_volume.dtype)
+def extrude_reference(output_shape, input_volume, matrix, min_value):
+    min_value_typed = np.array(min_value).astype(input_volume.dtype, casting="unsafe").item()
+    output_plane = np.full(output_shape, min_value_typed, dtype=input_volume.dtype)
     output_depths = np.full(output_shape, np.inf, dtype=np.float64)
     src0, src1, src2 = input_volume.shape
     dst0, dst1 = output_shape
 
-    pi_span = int(np.ceil(np.abs(matrix[0, 0]) + np.abs(matrix[0, 1]) + np.abs(matrix[0, 2])))
-    pj_span = int(np.ceil(np.abs(matrix[1, 0]) + np.abs(matrix[1, 1]) + np.abs(matrix[1, 2])))
-    pi_span = max(pi_span, 1)
-    pj_span = max(pj_span, 1)
+    output_i_span = int(np.ceil(np.abs(matrix[0, 0]) + np.abs(matrix[0, 1]) + np.abs(matrix[0, 2])))
+    output_j_span = int(np.ceil(np.abs(matrix[1, 0]) + np.abs(matrix[1, 1]) + np.abs(matrix[1, 2])))
+    output_i_span = max(output_i_span, 1)
+    output_j_span = max(output_j_span, 1)
 
     for x in range(src0):
         for y in range(src1):
             for z in range(src2):
                 val = input_volume[x, y, z]
-                if val <= min_val_cast:
+                if val <= min_value_typed:
                     continue
                 coords = matrix @ np.array([x, y, z, 1.0], dtype=np.float64)
-                pi_f, pj_f, pk_f = coords[0], coords[1], coords[2]
-                if pi_f < 0.0 or pi_f >= dst0 or pj_f < 0.0 or pj_f >= dst1:
+                projected_i, projected_j, projected_depth = coords[0], coords[1], coords[2]
+                if projected_i < 0.0 or projected_i >= dst0 or projected_j < 0.0 or projected_j >= dst1:
                     continue
-                pi0 = int(pi_f)
-                pj0 = int(pj_f)
-                pi1 = min(pi0 + pi_span, dst0)
-                pj1 = min(pj0 + pj_span, dst1)
-                for pi in range(max(pi0, 0), pi1):
-                    for pj in range(max(pj0, 0), pj1):
-                        if pk_f < output_depths[pi, pj]:
-                            output_depths[pi, pj] = pk_f
+                pixel_i_start = int(projected_i)
+                pixel_j_start = int(projected_j)
+                pixel_i_end = min(pixel_i_start + output_i_span, dst0)
+                pixel_j_end = min(pixel_j_start + output_j_span, dst1)
+                for pi in range(max(pixel_i_start, 0), pixel_i_end):
+                    for pj in range(max(pixel_j_start, 0), pixel_j_end):
+                        if projected_depth < output_depths[pi, pj]:
+                            output_depths[pi, pj] = projected_depth
                             output_plane[pi, pj] = val
     return output_plane, output_depths
 
@@ -56,7 +56,7 @@ def test_extrude_identity(dtype):
     min_value = _min_value(dtype)
 
     extrude3C(output_plane, output_depths, input_volume, matrix, min_value)
-    expected_plane, expected_depths = python_extrude_reference((3, 3), input_volume, matrix, min_value)
+    expected_plane, expected_depths = extrude_reference((3, 3), input_volume, matrix, min_value)
 
     assert np.array_equal(output_plane, expected_plane)
     assert np.array_equal(output_depths, expected_depths)
@@ -79,7 +79,7 @@ def test_extrude_rotation_90_degrees(dtype):
     min_value = _min_value(dtype)
 
     extrude3C(output_plane, output_depths, input_volume, matrix, min_value)
-    expected_plane, expected_depths = python_extrude_reference((3, 3), input_volume, matrix, min_value)
+    expected_plane, expected_depths = extrude_reference((3, 3), input_volume, matrix, min_value)
 
     assert np.array_equal(output_plane, expected_plane)
     assert np.array_equal(output_depths, expected_depths)
@@ -102,7 +102,7 @@ def test_extrude_scaled_identity_no_skips(dtype):
     min_value = _min_value(dtype)
 
     extrude3C(output_plane, output_depths, input_volume, matrix, min_value)
-    expected_plane, expected_depths = python_extrude_reference((8, 8), input_volume, matrix, min_value)
+    expected_plane, expected_depths = extrude_reference((8, 8), input_volume, matrix, min_value)
 
     assert np.array_equal(output_plane, expected_plane)
     assert np.array_equal(output_depths, expected_depths)
