@@ -16,18 +16,14 @@ def maximize(input_volume, matrix, shape=None, min_value=DEFAULT_MIN_VALUE):
 
 
 class Maximizer:
-    def __init__(self, input_volume, matrix, shape=None, min_value=DEFAULT_MIN_VALUE):
+    def __init__(self, input_volume, shape=None, min_value=DEFAULT_MIN_VALUE):
         self.input_volume = np.ascontiguousarray(input_volume)
-        self.matrix = np.ascontiguousarray(matrix, dtype=np.float64)
         self.min_value = min_value
         if shape is None:
             shape = self.input_volume.shape[:2]
         self.output_plane = np.empty(shape, dtype=self.input_volume.dtype, order="C")
 
-    def maximize(self, matrix=None):
-        if matrix is None:
-            matrix = self.matrix
-        else:
-            matrix = np.ascontiguousarray(matrix, dtype=np.float64)
+    def maximize(self, matrix):
+        matrix = np.ascontiguousarray(matrix, dtype=np.float64)
         max_value3C(self.input_volume, self.output_plane, matrix, self.min_value)
         return self.output_plane

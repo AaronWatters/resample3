@@ -42,9 +42,9 @@ def test_maximizer_reuses_allocated_buffer():
     )
     matrix = np.eye(4, dtype=np.float64)
     min_value = -7.0
-    maximizer = Maximizer(input_volume, matrix, shape=(3, 3), min_value=min_value)
+    maximizer = Maximizer(input_volume, shape=(3, 3), min_value=min_value)
 
-    output_plane = maximizer.maximize()
+    output_plane = maximizer.maximize(matrix)
 
     assert output_plane is maximizer.output_plane
     assert np.array_equal(output_plane[:2, :2], np.max(input_volume, axis=2))
