@@ -13,3 +13,13 @@ python -m pip install -e .
 python -m pip install pytest numpy
 pytest -q
 ```
+
+## Demos
+
+The demos require the `H5Gizmos` library.
+
+```bash
+pip install resample3[demos]
+```
+
+

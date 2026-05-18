@@ -55,8 +55,8 @@ def translation_matrix(tx, ty, tz):
         dtype=np.float64,
     )
 
-def rotation_matrix_z(angle_degrees):
-    angle_radians = np.radians(angle_degrees)
+def rotation_matrix_z(angle_radians):
+    #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
     sin_a = np.sin(angle_radians)
     return np.array(
@@ -69,8 +69,8 @@ def rotation_matrix_z(angle_degrees):
         dtype=np.float64,
     )
 
-def rotation_matrix_y(angle_degrees):
-    angle_radians = np.radians(angle_degrees)
+def rotation_matrix_y(angle_radians):
+    #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
     sin_a = np.sin(angle_radians)
     return np.array(
@@ -83,8 +83,8 @@ def rotation_matrix_y(angle_degrees):
         dtype=np.float64,
     )   
 
-def rotation_matrix_x(angle_degrees):
-    angle_radians = np.radians(angle_degrees)
+def rotation_matrix_x(angle_radians):
+    #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
     sin_a = np.sin(angle_radians)
     return np.array(
@@ -101,7 +101,7 @@ def rotation_matrix_x(angle_degrees):
 CUBE_DIAMETER = np.sqrt(3)
 DEFAULT_SCALING = 1/CUBE_DIAMETER
 
-def projection_matrix(from_shape3d, to_shape2d, scaling=DEFAULT_SCALING, rx=0.0, ry=0.0, rz=0.0):
+def projection_matrix(from_shape3d, to_shape2d, scales=None, rx=0.0, ry=0.0, rz=0.0):
     """
     project coordinates of from_shape3d to to_shape2d, with optional 
     scaling fit the input shape within the output shape and
@@ -113,12 +113,17 @@ def projection_matrix(from_shape3d, to_shape2d, scaling=DEFAULT_SCALING, rx=0.0,
         raise ValueError(f"from_shape3d must be a 3-element shape tuple, got {from_shape3d}")
     if to_shape2d.shape != (2,):
         raise ValueError(f"to_shape2d must be a 2-element shape tuple, got {to_shape2d}")
-    scaling = scaling * min(to_shape2d / from_shape3d[:2])
-    scale = scale_matrix(scaling)
+    scale_ratio = min(to_shape2d / from_shape3d[:2])
+    if scales is None:
+        scale = scale_matrix(DEFAULT_SCALING * scale_ratio)
+    else:
+        scales = np.asarray(scales, dtype=np.float64)
+        scale = scale_matrix(*(scales * scale_ratio))
     to_center2d = translation_matrix(to_shape2d[0] / 2, to_shape2d[1] / 2, 0)
+    #scaled_from_shape3d = apply_matrix_to_vector(scale, from_shape3d)
     to_origin3d = translation_matrix(*(-from_shape3d/2))
     rotate_x = rotation_matrix_x(rx)
     rotate_y = rotation_matrix_y(ry)
     rotate_z = rotation_matrix_z(rz)
-    result = to_center2d @ scale @ rotate_x @ rotate_y @ rotate_z @ to_origin3d
+    result = to_center2d @ rotate_x @ rotate_y @ rotate_z @ scale @ to_origin3d
     return result
