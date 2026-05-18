@@ -24,7 +24,7 @@ class SurfaceDemo:
             self.input_volume.shape, plane_shape, self.scales
         )
 
-    def dashboad(self):
+    def dashboard(self):
         output_size = self.output_size
         self.image = gz.Image(height=output_size, width=output_size)
         self.info = gz.Text("info here")
@@ -62,7 +62,7 @@ class SurfaceDemo:
             self.info,
         ])
         dash.call_when_started(self.update)
-        self.dashboad = dash
+        self.dashboard = dash
         return dash
 
     def update(self, *ignored):
@@ -81,4 +81,4 @@ class SurfaceDemo:
 
 if __name__ == "__main__":
     demo = SurfaceDemo(input_volume, rescale=0.7)
-    gz.serve(demo.dashboad().link())
+    gz.serve(demo.dashboard().link())
