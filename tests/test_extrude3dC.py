@@ -4,7 +4,7 @@ import pytest
 from resample3 import extrude3C
 
 
-DTYPES = [np.uint8, np.int16, np.int32, np.float32, np.float64]
+DTYPES = [np.uint8, np.uint16, np.int16, np.int32, np.float32, np.float64]
 
 
 def extrude_reference(output_shape, input_volume, matrix, min_value):
@@ -42,7 +42,7 @@ def extrude_reference(output_shape, input_volume, matrix, min_value):
 
 
 def _min_value(dtype):
-    if dtype == np.uint8:
+    if np.issubdtype(dtype, np.unsignedinteger):
         return 0.0
     return -1.0
 
