@@ -97,7 +97,11 @@ def rotation_matrix_x(angle_degrees):
         dtype=np.float64,
     )
 
-def projection_matrix(from_shape3d, to_shape2d, scaling=0.7, rx=0.0, ry=0.0, rz=0.0):
+# The diameter of a sphere containing a cube with sides length of 1.
+CUBE_DIAMETER = np.sqrt(3)
+DEFAULT_SCALING = 1/CUBE_DIAMETER
+
+def projection_matrix(from_shape3d, to_shape2d, scaling=DEFAULT_SCALING, rx=0.0, ry=0.0, rz=0.0):
     """
     project coordinates of from_shape3d to to_shape2d, with optional 
     scaling fit the input shape within the output shape and
