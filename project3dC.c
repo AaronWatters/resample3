@@ -57,6 +57,7 @@ static void max_proj_##SUFFIX(                                                  
 MAX_PROJ_KERNEL(double,   double)
 MAX_PROJ_KERNEL(float,    float)
 MAX_PROJ_KERNEL(uint8_t,  uint8)
+MAX_PROJ_KERNEL(uint16_t, uint16)
 MAX_PROJ_KERNEL(int16_t,  int16)
 MAX_PROJ_KERNEL(int32_t,  int32)
 
@@ -135,6 +136,7 @@ static void extrude_##SUFFIX(                                                   
 EXTRUDE_KERNEL(double,   double)
 EXTRUDE_KERNEL(float,    float)
 EXTRUDE_KERNEL(uint8_t,  uint8)
+EXTRUDE_KERNEL(uint16_t, uint16)
 EXTRUDE_KERNEL(int16_t,  int16)
 EXTRUDE_KERNEL(int32_t,  int32)
 
@@ -194,9 +196,10 @@ static PyObject *max_value3C(PyObject *self, PyObject *args)
     }
 
     if (dtype != NPY_FLOAT64 && dtype != NPY_FLOAT32
-        && dtype != NPY_UINT8 && dtype != NPY_INT16 && dtype != NPY_INT32) {
+        && dtype != NPY_UINT8 && dtype != NPY_UINT16
+        && dtype != NPY_INT16 && dtype != NPY_INT32) {
         PyErr_SetString(PyExc_TypeError,
-            "unsupported dtype: supported dtypes are uint8, int16, int32, float32, float64");
+            "unsupported dtype: supported dtypes are uint8, uint16, int16, int32, float32, float64");
         return NULL;
     }
 
@@ -227,6 +230,12 @@ static PyObject *max_value3C(PyObject *self, PyObject *args)
                 (const uint8_t *)PyArray_DATA(input),
                 (uint8_t *)PyArray_DATA(output),
                 src0, src1, src2, dst0, dst1, m, (uint8_t)min_value);
+            break;
+        case NPY_UINT16:
+            max_proj_uint16(
+                (const uint16_t *)PyArray_DATA(input),
+                (uint16_t *)PyArray_DATA(output),
+                src0, src1, src2, dst0, dst1, m, (uint16_t)min_value);
             break;
         case NPY_INT16:
             max_proj_int16(
@@ -325,10 +334,11 @@ static PyObject *extrude3C(PyObject *self, PyObject *args)
         return NULL;
     }
     if (dtype != NPY_FLOAT64 && dtype != NPY_FLOAT32
-        && dtype != NPY_UINT8 && dtype != NPY_INT16 && dtype != NPY_INT32) {
+        && dtype != NPY_UINT8 && dtype != NPY_UINT16
+        && dtype != NPY_INT16 && dtype != NPY_INT32) {
         PyErr_SetString(
             PyExc_TypeError,
-            "unsupported dtype: supported dtypes are uint8, int16, int32, float32, float64");
+            "unsupported dtype: supported dtypes are uint8, uint16, int16, int32, float32, float64");
         return NULL;
     }
 
@@ -368,6 +378,15 @@ static PyObject *extrude3C(PyObject *self, PyObject *args)
                 output_dim0, output_dim1,
                 input_dim0, input_dim1, input_dim2,
                 matrix_data, (uint8_t)min_value);
+            break;
+        case NPY_UINT16:
+            extrude_uint16(
+                (uint16_t *)PyArray_DATA(output_plane),
+                output_depths_data,
+                (const uint16_t *)PyArray_DATA(input_volume),
+                output_dim0, output_dim1,
+                input_dim0, input_dim1, input_dim2,
+                matrix_data, (uint16_t)min_value);
             break;
         case NPY_INT16:
             extrude_int16(

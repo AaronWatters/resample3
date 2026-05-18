@@ -4,7 +4,7 @@ import pytest
 from resample3 import max_value3C
 
 
-DTYPES = [np.uint8, np.int16, np.int32, np.float32, np.float64]
+DTYPES = [np.uint8, np.uint16, np.int16, np.int32, np.float32, np.float64]
 
 
 def python_reference(input_volume, output_shape, matrix, min_value):
