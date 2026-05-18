@@ -33,7 +33,7 @@ def python_reference(input_volume, output_shape, matrix, min_value):
 
 def _min_value(dtype):
     """Return a safe min_value sentinel for each dtype."""
-    if dtype == np.uint8:
+    if np.issubdtype(dtype, np.unsignedinteger):
         return 0.0
     return -1.0
 

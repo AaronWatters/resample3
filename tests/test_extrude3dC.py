@@ -42,7 +42,7 @@ def extrude_reference(output_shape, input_volume, matrix, min_value):
 
 
 def _min_value(dtype):
-    if dtype == np.uint8:
+    if np.issubdtype(dtype, np.unsignedinteger):
         return 0.0
     return -1.0
 
