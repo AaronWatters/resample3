@@ -20,8 +20,8 @@ class SliceDemo:
         self.input_volume = input_volume
         self.width = width
         self.rescale = rescale
-        maxshape = max(input_volume.shape)
-        self.output_size = output_size = int(maxshape / rescale)
+        max_dimension = max(input_volume.shape)
+        self.output_size = output_size = int(max_dimension / rescale)
         self.plane_shape = plane_shape = (output_size,) * 2
         minimum = input_volume.min()
         self.slicer = Slicer(input_volume, shape=plane_shape, min_value=minimum)
@@ -32,7 +32,7 @@ class SliceDemo:
 
     def dashboard(self):
         output_size = self.output_size
-        maxdepth = max(self.input_volume.shape)
+        max_dimension = max(self.input_volume.shape)
         self.image = gz.Image(height=output_size, width=output_size)
         self.info = gz.Text("info here")
         title = "Slice projection demo"
@@ -62,9 +62,9 @@ class SliceDemo:
         self.z_slider.css(width=str(self.width) + "px")
         self.depth_slider = gz.Slider(
             minimum=0,
-            maximum=maxdepth,
+            maximum=max_dimension,
             step=1,
-            value=maxdepth // 2,
+            value=max_dimension // 2,
             on_change=self.update,
         )
         self.depth_slider.css(width=str(self.width) + "px")
