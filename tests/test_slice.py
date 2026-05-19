@@ -24,7 +24,7 @@ def test_slicepy_allocates_and_returns_output_matrix():
     assert np.array_equal(output_matrix, input_volume[:, :, 1])
 
 
-def test_slicer_updates_output_with_slice_function():
+def test_slicer_replaces_contents_of_preallocated_output_matrix():
     input_volume = np.arange(27, dtype=np.float64).reshape(3, 3, 3)
     invmatrix = np.eye(4, dtype=np.float64)
     slicer = Slicer(input_volume)
@@ -33,7 +33,7 @@ def test_slicer_updates_output_with_slice_function():
     output_matrix = slicer.slice(invmatrix, 1.0)
 
     assert output_matrix is slicer.output_matrix
-    assert output_matrix is not initial_output_matrix
+    assert output_matrix is initial_output_matrix
     assert np.array_equal(output_matrix, input_volume[:, :, 1])
 
 

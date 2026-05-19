@@ -29,12 +29,15 @@ def slicepy(input_volume, depth, invmatrix, shape=None, min_value=0.0):
     return output_matrix
 
 
-def slice(input_volume, depth, invmatrix, shape=None, min_value=DEFAULT_MIN_VALUE):
+def slice(input_volume, depth, invmatrix, shape=None, min_value=DEFAULT_MIN_VALUE, output_matrix=None):
     input_volume = np.ascontiguousarray(input_volume)
     invmatrix = np.ascontiguousarray(invmatrix, dtype=np.float64)
-    if shape is None:
-        shape = input_volume.shape[:2]
-    output_matrix = np.empty(shape, dtype=input_volume.dtype, order="C")
+    if output_matrix is None:
+        if shape is None:
+            shape = input_volume.shape[:2]
+        output_matrix = np.empty(shape, dtype=input_volume.dtype, order="C")
+    elif shape is not None and tuple(shape) != output_matrix.shape:
+        raise ValueError("shape must match output_matrix shape")
     slice3dC(output_matrix, input_volume, depth, invmatrix, min_value)
     return output_matrix
 
@@ -56,5 +59,6 @@ class Slicer:
             invmatrix,
             shape=self.output_matrix.shape,
             min_value=min_value,
+            output_matrix=self.output_matrix,
         )
         return self.output_matrix
