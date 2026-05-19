@@ -25,7 +25,7 @@ class SliceDemo:
             self.input_volume.shape, plane_shape, self.scales
         )
 
-    def dashboad(self):
+    def dashboard(self):
         output_size = self.output_size
         maxdepth = max(self.input_volume.shape)
         self.image = gz.Image(height=output_size, width=output_size)
@@ -73,7 +73,7 @@ class SliceDemo:
             self.info,
         ])
         dash.call_when_started(self.update)
-        self.dashboad = dash
+        self.dashboard = dash
         return dash
 
     def update(self, *ignored):
@@ -94,4 +94,4 @@ class SliceDemo:
 
 if __name__ == "__main__":
     demo = SliceDemo(input_volume, rescale=0.7)
-    gz.serve(demo.dashboad().link())
+    gz.serve(demo.dashboard().link())
