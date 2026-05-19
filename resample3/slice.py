@@ -24,3 +24,19 @@ def slicepy(input_volume, depth, invmatrix, shape=None, min_value=0.0):
     output_matrix = np.empty(shape, dtype=input_volume.dtype, order="C")
     slice3py(output_matrix, input_volume, depth, invmatrix, min_value)
     return output_matrix
+
+
+class Slicer:
+    def __init__(self, input_volume, shape=None, min_value=0.0):
+        self.input_volume = np.ascontiguousarray(input_volume)
+        self.min_value = min_value
+        if shape is None:
+            shape = self.input_volume.shape[:2]
+        self.output_matrix = np.empty(shape, dtype=self.input_volume.dtype, order="C")
+
+    def slice(self, invmatrix, depth, min_value=None):
+        if min_value is None:
+            min_value = self.min_value
+        invmatrix = np.ascontiguousarray(invmatrix, dtype=np.float64)
+        slice3py(self.output_matrix, self.input_volume, depth, invmatrix, min_value)
+        return self.output_matrix
