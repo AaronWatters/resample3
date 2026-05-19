@@ -5,6 +5,9 @@ Slice a 3D volume into 2D planes using an affine transformation matrix to define
 import numpy as np
 
 from .matrices import apply_matrix_to_vector
+from .slice3dC import slice3dC
+
+DEFAULT_MIN_VALUE = 0.0
 
 
 def slice3py(output_matrix, input_volume, depth, invmatrix, min_value=0.0):
@@ -26,8 +29,18 @@ def slicepy(input_volume, depth, invmatrix, shape=None, min_value=0.0):
     return output_matrix
 
 
+def slice(input_volume, depth, invmatrix, shape=None, min_value=DEFAULT_MIN_VALUE):
+    input_volume = np.ascontiguousarray(input_volume)
+    invmatrix = np.ascontiguousarray(invmatrix, dtype=np.float64)
+    if shape is None:
+        shape = input_volume.shape[:2]
+    output_matrix = np.empty(shape, dtype=input_volume.dtype, order="C")
+    slice3dC(output_matrix, input_volume, depth, invmatrix, min_value)
+    return output_matrix
+
+
 class Slicer:
-    def __init__(self, input_volume, shape=None, min_value=0.0):
+    def __init__(self, input_volume, shape=None, min_value=DEFAULT_MIN_VALUE):
         self.input_volume = np.ascontiguousarray(input_volume)
         self.min_value = min_value
         if shape is None:
@@ -37,6 +50,11 @@ class Slicer:
     def slice(self, invmatrix, depth, min_value=None):
         if min_value is None:
             min_value = self.min_value
-        invmatrix = np.ascontiguousarray(invmatrix, dtype=np.float64)
-        slice3py(self.output_matrix, self.input_volume, depth, invmatrix, min_value)
+        self.output_matrix = slice(
+            self.input_volume,
+            depth,
+            invmatrix,
+            shape=self.output_matrix.shape,
+            min_value=min_value,
+        )
         return self.output_matrix

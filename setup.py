@@ -17,5 +17,10 @@ setup(
             ["project3dC.c"],
             include_dirs=[numpy.get_include()],
         ),
+        Extension(
+            "resample3.slice3dC",
+            ["slice3dC.c"],
+            include_dirs=[numpy.get_include()],
+        ),
     ],
 )
