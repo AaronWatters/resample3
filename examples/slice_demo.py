@@ -4,8 +4,13 @@ from resample3.slice import Slicer
 from resample3 import matrices
 
 npz_path = "labels_and_image.npz"
-data = np.load(npz_path)
-input_volume = data["img"]
+try:
+    data = np.load(npz_path)
+    input_volume = data["img"]
+except FileNotFoundError as exc:
+    raise RuntimeError(f"Could not find demo input file: {npz_path}") from exc
+except KeyError as exc:
+    raise RuntimeError(f"Demo input file {npz_path} does not contain required key 'img'") from exc
 print(f"Loaded input volume from {npz_path} with shape {input_volume.shape} and dtype {input_volume.dtype}")
 
 
@@ -73,7 +78,7 @@ class SliceDemo:
             self.info,
         ])
         dash.call_when_started(self.update)
-        self.dashboard = dash
+        self.dash_widget = dash
         return dash
 
     def update(self, *ignored):
