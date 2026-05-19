@@ -41,6 +41,7 @@ class ShadeDemo:
         self.image = gz.Image(height=output_size, width=output_size)
         self.info = gz.Text("info here")
         title = "Positive surface projection demo"
+        slider_width = str(self.width//2) + "px"
         self.x_slider = gz.Slider(
             minimum=-np.pi,
             maximum=np.pi,
@@ -48,7 +49,7 @@ class ShadeDemo:
             value=0.0,
             on_change=self.update,
         )
-        self.x_slider.css(width=str(self.width) + "px")
+        self.x_slider.css(width=slider_width)
         self.y_slider = gz.Slider(
             minimum=-np.pi,
             maximum=np.pi,
@@ -56,7 +57,7 @@ class ShadeDemo:
             value=0.0,
             on_change=self.update,
         )
-        self.y_slider.css(width=str(self.width) + "px")
+        self.y_slider.css(width=slider_width)
         self.z_slider = gz.Slider(
             minimum=-np.pi,
             maximum=np.pi,
@@ -64,7 +65,7 @@ class ShadeDemo:
             value=0.0,
             on_change=self.update,
         )
-        self.z_slider.css(width=str(self.width) + "px")
+        self.z_slider.css(width=slider_width)
         self.mix_slider = gz.Slider(
             minimum=0,
             maximum=1,
@@ -76,10 +77,10 @@ class ShadeDemo:
         dash = gz.Stack([
             title,
             self.image,
-            self.x_slider,
-            self.y_slider,
-            self.z_slider,
-            self.mix_slider,
+            ["x", self.x_slider],
+            ["y", self.y_slider],
+            ["z", self.z_slider],
+            ["shading", self.mix_slider],
             self.info,
         ])
         dash.call_when_started(self.update)
