@@ -53,7 +53,7 @@ class Slicer:
     def slice(self, invmatrix, depth, min_value=None):
         if min_value is None:
             min_value = self.min_value
-        self.output_matrix = slice(
+        slice(
             self.input_volume,
             depth,
             invmatrix,
