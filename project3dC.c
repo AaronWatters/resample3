@@ -76,13 +76,13 @@ static void extrude_##SUFFIX(                                                   
     const TYPE *input_volume,                                                         \
     npy_intp output_dim0, npy_intp output_dim1,                                       \
     npy_intp input_dim0, npy_intp input_dim1, npy_intp input_dim2,                    \
-    const double *m, TYPE min_val)                                                    \
+    const double *m, TYPE min_val, double max_depth)                                  \
 {                                                                                      \
     for (npy_intp output_i = 0; output_i < output_dim0; output_i++) {                 \
         for (npy_intp output_j = 0; output_j < output_dim1; output_j++) {             \
             const npy_intp output_index = output_i * output_dim1 + output_j;          \
             output_plane[output_index] = min_val;                                      \
-            output_depths[output_index] = INFINITY;                                    \
+            output_depths[output_index] = max_depth;                                   \
         }                                                                              \
     }                                                                                  \
     const npy_intp output_i_span =                                                     \
@@ -262,11 +262,12 @@ static PyObject *extrude3C(PyObject *self, PyObject *args)
     PyObject *input_volume_obj;
     PyObject *matrix_obj;
     double min_value;
+    double max_depth;
 
     if (!PyArg_ParseTuple(
-            args, "OOOOd",
+            args, "OOOOdd",
             &output_plane_obj, &output_depths_obj, &input_volume_obj, &matrix_obj,
-            &min_value))
+            &min_value, &max_depth))
         return NULL;
 
     if (!PyArray_Check(output_plane_obj) || !PyArray_Check(output_depths_obj)
@@ -359,7 +360,7 @@ static PyObject *extrude3C(PyObject *self, PyObject *args)
                 (const double *)PyArray_DATA(input_volume),
                 output_dim0, output_dim1,
                 input_dim0, input_dim1, input_dim2,
-                matrix_data, (double)min_value);
+                matrix_data, (double)min_value, max_depth);
             break;
         case NPY_FLOAT32:
             extrude_float(
@@ -368,7 +369,7 @@ static PyObject *extrude3C(PyObject *self, PyObject *args)
                 (const float *)PyArray_DATA(input_volume),
                 output_dim0, output_dim1,
                 input_dim0, input_dim1, input_dim2,
-                matrix_data, (float)min_value);
+                matrix_data, (float)min_value, max_depth);
             break;
         case NPY_UINT8:
             extrude_uint8(
@@ -377,7 +378,7 @@ static PyObject *extrude3C(PyObject *self, PyObject *args)
                 (const uint8_t *)PyArray_DATA(input_volume),
                 output_dim0, output_dim1,
                 input_dim0, input_dim1, input_dim2,
-                matrix_data, (uint8_t)min_value);
+                matrix_data, (uint8_t)min_value, max_depth);
             break;
         case NPY_UINT16:
             extrude_uint16(
@@ -386,7 +387,7 @@ static PyObject *extrude3C(PyObject *self, PyObject *args)
                 (const uint16_t *)PyArray_DATA(input_volume),
                 output_dim0, output_dim1,
                 input_dim0, input_dim1, input_dim2,
-                matrix_data, (uint16_t)min_value);
+                matrix_data, (uint16_t)min_value, max_depth);
             break;
         case NPY_INT16:
             extrude_int16(
@@ -395,7 +396,7 @@ static PyObject *extrude3C(PyObject *self, PyObject *args)
                 (const int16_t *)PyArray_DATA(input_volume),
                 output_dim0, output_dim1,
                 input_dim0, input_dim1, input_dim2,
-                matrix_data, (int16_t)min_value);
+                matrix_data, (int16_t)min_value, max_depth);
             break;
         case NPY_INT32:
             extrude_int32(
@@ -404,7 +405,7 @@ static PyObject *extrude3C(PyObject *self, PyObject *args)
                 (const int32_t *)PyArray_DATA(input_volume),
                 output_dim0, output_dim1,
                 input_dim0, input_dim1, input_dim2,
-                matrix_data, (int32_t)min_value);
+                matrix_data, (int32_t)min_value, max_depth);
             break;
     }
     Py_END_ALLOW_THREADS

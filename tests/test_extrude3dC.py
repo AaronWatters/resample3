@@ -7,10 +7,10 @@ from resample3 import extrude3C
 DTYPES = [np.uint8, np.uint16, np.int16, np.int32, np.float32, np.float64]
 
 
-def extrude_reference(output_shape, input_volume, matrix, min_value):
+def extrude_reference(output_shape, input_volume, matrix, min_value, max_depth):
     min_value_typed = np.array(min_value).astype(input_volume.dtype, casting="unsafe").item()
     output_plane = np.full(output_shape, min_value_typed, dtype=input_volume.dtype)
-    output_depths = np.full(output_shape, np.inf, dtype=np.float64)
+    output_depths = np.full(output_shape, max_depth, dtype=np.float64)
     src0, src1, src2 = input_volume.shape
     dst0, dst1 = output_shape
 
@@ -54,9 +54,10 @@ def test_extrude_identity(dtype):
     output_depths = np.empty((3, 3), dtype=np.float64)
     matrix = np.eye(4, dtype=np.float64)
     min_value = _min_value(dtype)
+    max_depth = 10.0
 
-    extrude3C(output_plane, output_depths, input_volume, matrix, min_value)
-    expected_plane, expected_depths = extrude_reference((3, 3), input_volume, matrix, min_value)
+    extrude3C(output_plane, output_depths, input_volume, matrix, min_value, max_depth)
+    expected_plane, expected_depths = extrude_reference((3, 3), input_volume, matrix, min_value, max_depth)
 
     assert np.array_equal(output_plane, expected_plane)
     assert np.array_equal(output_depths, expected_depths)
@@ -77,9 +78,10 @@ def test_extrude_rotation_90_degrees(dtype):
         dtype=np.float64,
     )
     min_value = _min_value(dtype)
+    max_depth = 10.0
 
-    extrude3C(output_plane, output_depths, input_volume, matrix, min_value)
-    expected_plane, expected_depths = extrude_reference((3, 3), input_volume, matrix, min_value)
+    extrude3C(output_plane, output_depths, input_volume, matrix, min_value, max_depth)
+    expected_plane, expected_depths = extrude_reference((3, 3), input_volume, matrix, min_value, max_depth)
 
     assert np.array_equal(output_plane, expected_plane)
     assert np.array_equal(output_depths, expected_depths)
@@ -100,9 +102,10 @@ def test_extrude_scaled_identity_no_skips(dtype):
         dtype=np.float64,
     )
     min_value = _min_value(dtype)
+    max_depth = 10.0
 
-    extrude3C(output_plane, output_depths, input_volume, matrix, min_value)
-    expected_plane, expected_depths = extrude_reference((8, 8), input_volume, matrix, min_value)
+    extrude3C(output_plane, output_depths, input_volume, matrix, min_value, max_depth)
+    expected_plane, expected_depths = extrude_reference((8, 8), input_volume, matrix, min_value, max_depth)
 
     assert np.array_equal(output_plane, expected_plane)
     assert np.array_equal(output_depths, expected_depths)

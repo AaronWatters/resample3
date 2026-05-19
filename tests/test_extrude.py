@@ -35,6 +35,31 @@ def test_extrude_custom_shape_allocates_requested_outputs():
     assert output_depths.dtype == np.float64
 
 
+def test_extrude_default_max_depth_for_unfilled_output():
+    input_volume = np.array([[[1.0]]], dtype=np.float64)
+    matrix = np.eye(4, dtype=np.float64)
+
+    output_plane, output_depths = extrude(input_volume, matrix, shape=(2, 2))
+
+    expected_max_depth = 2 * max(input_volume.shape)
+    assert output_depths[0, 0] == 0.0
+    assert np.array_equal(output_depths[1:, :], np.full((1, 2), expected_max_depth))
+    assert output_depths[0, 1] == expected_max_depth
+
+
+def test_extruder_max_depth_override():
+    input_volume = np.array([[[3.0]]], dtype=np.float64)
+    matrix = np.eye(4, dtype=np.float64)
+    extruder = Extruder(input_volume, shape=(2, 2), max_depth=7.5)
+
+    _, output_depths = extruder.extrude(matrix)
+
+    assert output_depths[0, 0] == 0.0
+    assert output_depths[0, 1] == 7.5
+    assert output_depths[1, 0] == 7.5
+    assert output_depths[1, 1] == 7.5
+
+
 def test_extruder_reuses_allocated_buffers():
     input_volume = np.array(
         [
