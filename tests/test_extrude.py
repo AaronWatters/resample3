@@ -42,9 +42,8 @@ def test_extrude_default_max_depth_for_unfilled_output():
     output_plane, output_depths = extrude(input_volume, matrix, shape=(2, 2))
 
     expected_max_depth = 2 * max(input_volume.shape)
-    assert output_depths[0, 0] == 0.0
-    assert np.array_equal(output_depths[1:, :], np.full((1, 2), expected_max_depth))
-    assert output_depths[0, 1] == expected_max_depth
+    expected_depths = np.array([[0.0, expected_max_depth], [expected_max_depth, expected_max_depth]])
+    assert np.array_equal(output_depths, expected_depths)
 
 
 def test_extruder_max_depth_override():
