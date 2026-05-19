@@ -40,7 +40,7 @@ def test_apply_matrix_to_vector_scale_applies_axis_factors():
     assert np.allclose(result, np.array([2.0, -6.0, 2.0]), atol=1e-12)
 
 
-@pytest.mark.parametrize("angle", [-90, 0, 90])
+@pytest.mark.parametrize("angle", [-np.pi / 2, 0.0, np.pi / 2])
 def test_apply_matrix_to_vector_matches_rotation_x_matrix_multiplication(angle):
     matrix = rotation_matrix_x(angle)
     vector = np.array([1.0, 2.0, 3.0], dtype=np.float64)
@@ -51,7 +51,7 @@ def test_apply_matrix_to_vector_matches_rotation_x_matrix_multiplication(angle):
     assert np.allclose(result, expected, atol=1e-12)
 
 
-@pytest.mark.parametrize("angle", [-90, 0, 90])
+@pytest.mark.parametrize("angle", [-np.pi / 2, 0.0, np.pi / 2])
 def test_apply_matrix_to_vector_matches_rotation_y_matrix_multiplication(angle):
     matrix = rotation_matrix_y(angle)
     vector = np.array([1.0, 2.0, 3.0], dtype=np.float64)
@@ -62,7 +62,7 @@ def test_apply_matrix_to_vector_matches_rotation_y_matrix_multiplication(angle):
     assert np.allclose(result, expected, atol=1e-12)
 
 
-@pytest.mark.parametrize("angle", [-90, 0, 90])
+@pytest.mark.parametrize("angle", [-np.pi / 2, 0.0, np.pi / 2])
 def test_apply_matrix_to_vector_matches_rotation_z_matrix_multiplication(angle):
     matrix = rotation_matrix_z(angle)
     vector = np.array([1.0, 2.0, 3.0], dtype=np.float64)
@@ -98,8 +98,7 @@ def test_apply_matrix_to_vector_raises_when_w_is_zero():
 @pytest.mark.parametrize(
     "angle, expected",
     [
-        (
-            -90,
+        (-np.pi / 2,
             np.array(
                 [
                     [1.0, 0.0, 0.0, 0.0],
@@ -110,12 +109,10 @@ def test_apply_matrix_to_vector_raises_when_w_is_zero():
                 dtype=np.float64,
             ),
         ),
-        (
-            0,
+        (0.0,
             np.eye(4, dtype=np.float64),
         ),
-        (
-            90,
+        (np.pi / 2,
             np.array(
                 [
                     [1.0, 0.0, 0.0, 0.0],
@@ -138,8 +135,7 @@ def test_rotation_matrix_x(angle, expected):
 @pytest.mark.parametrize(
     "angle, expected",
     [
-        (
-            -90,
+        (-np.pi / 2,
             np.array(
                 [
                     [0.0, 0.0, -1.0, 0.0],
@@ -150,12 +146,10 @@ def test_rotation_matrix_x(angle, expected):
                 dtype=np.float64,
             ),
         ),
-        (
-            0,
+        (0.0,
             np.eye(4, dtype=np.float64),
         ),
-        (
-            90,
+        (np.pi / 2,
             np.array(
                 [
                     [0.0, 0.0, 1.0, 0.0],
@@ -178,8 +172,7 @@ def test_rotation_matrix_y(angle, expected):
 @pytest.mark.parametrize(
     "angle, expected",
     [
-        (
-            -90,
+        (-np.pi / 2,
             np.array(
                 [
                     [0.0, 1.0, 0.0, 0.0],
@@ -190,12 +183,10 @@ def test_rotation_matrix_y(angle, expected):
                 dtype=np.float64,
             ),
         ),
-        (
-            0,
+        (0.0,
             np.eye(4, dtype=np.float64),
         ),
-        (
-            90,
+        (np.pi / 2,
             np.array(
                 [
                     [0.0, -1.0, 0.0, 0.0],
