@@ -1,6 +1,4 @@
-"""
-Slice a 3D volume into 2D planes using an affine transformation matrix to define the slicing plane.
-"""
+"""To be filled in..."""
 
 import numpy as np
 import numpy.typing as npt
@@ -19,7 +17,18 @@ def slice3py(
     invmatrix: np.ndarray,
     min_value: float = 0.0,
 ) -> None:
-    """Naive Python implementation of slicing into a preallocated 2D output matrix."""
+    """To be filled in...
+
+    Args:
+        output_matrix: To be filled in...
+        input_volume: To be filled in...
+        depth: To be filled in...
+        invmatrix: To be filled in...
+        min_value: To be filled in...
+
+    Returns:
+        To be filled in...
+    """
     output_matrix[...] = min_value
     for i in range(output_matrix.shape[0]):
         for j in range(output_matrix.shape[1]):
@@ -35,7 +44,18 @@ def slicepy(
     shape: Optional[Sequence[int]] = None,
     min_value: float = 0.0,
 ) -> np.ndarray:
-    """Naive Python implementation of slicing a 3D volume using an inverse transformation matrix."""
+    """To be filled in...
+
+    Args:
+        input_volume: To be filled in...
+        depth: To be filled in...
+        invmatrix: To be filled in...
+        shape: To be filled in...
+        min_value: To be filled in...
+
+    Returns:
+        To be filled in...
+    """
     if shape is None:
         shape = input_volume.shape[:2]
     output_matrix = np.empty(shape, dtype=input_volume.dtype, order="C")
@@ -51,6 +71,19 @@ def slice(
     min_value: float = DEFAULT_MIN_VALUE,
     output_matrix: Optional[np.ndarray] = None,
 ) -> np.ndarray:
+    """To be filled in...
+
+    Args:
+        input_volume: To be filled in...
+        depth: To be filled in...
+        invmatrix: To be filled in...
+        shape: To be filled in...
+        min_value: To be filled in...
+        output_matrix: To be filled in...
+
+    Returns:
+        To be filled in...
+    """
     input_volume = np.ascontiguousarray(input_volume)
     invmatrix = np.ascontiguousarray(invmatrix, dtype=np.float64)
     if output_matrix is None:
@@ -64,12 +97,21 @@ def slice(
 
 
 class Slicer:
+    """To be filled in..."""
+
     def __init__(
         self,
         input_volume: npt.ArrayLike,
         shape: Optional[Sequence[int]] = None,
         min_value: float = DEFAULT_MIN_VALUE,
     ) -> None:
+        """To be filled in...
+
+        Args:
+            input_volume: To be filled in...
+            shape: To be filled in...
+            min_value: To be filled in...
+        """
         self.input_volume = np.ascontiguousarray(input_volume)
         self.min_value = min_value
         if shape is None:
@@ -82,6 +124,16 @@ class Slicer:
         depth: float,
         min_value: Optional[float] = None,
     ) -> np.ndarray:
+        """To be filled in...
+
+        Args:
+            invmatrix: To be filled in...
+            depth: To be filled in...
+            min_value: To be filled in...
+
+        Returns:
+            To be filled in...
+        """
         if min_value is None:
             min_value = self.min_value
         slice(
