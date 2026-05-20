@@ -12,6 +12,18 @@ def extrude(
     min_value: float = 0.0,
     max_depth: Optional[int] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
+    """To be filled in...
+
+    Args:
+        input_volume: To be filled in...
+        matrix: To be filled in...
+        shape: To be filled in...
+        min_value: To be filled in...
+        max_depth: To be filled in...
+
+    Returns:
+        To be filled in...
+    """
     input_volume = np.ascontiguousarray(input_volume)
     matrix = np.ascontiguousarray(matrix, dtype=np.float64)
     if shape is None:
@@ -25,6 +37,8 @@ def extrude(
 
 
 class Extruder:
+    """To be filled in..."""
+
     def __init__(
         self,
         input_volume: npt.ArrayLike,
@@ -32,6 +46,14 @@ class Extruder:
         min_value: float = 0.0,
         max_depth: Optional[int] = None,
     ) -> None:
+        """To be filled in...
+
+        Args:
+            input_volume: To be filled in...
+            shape: To be filled in...
+            min_value: To be filled in...
+            max_depth: To be filled in...
+        """
         self.input_volume = np.ascontiguousarray(input_volume)
         self.min_value = min_value
         if max_depth is None:
@@ -48,6 +70,16 @@ class Extruder:
         min_value: Optional[float] = None,
         max_depth: Optional[int] = None,
     ) -> Tuple[np.ndarray, np.ndarray]:
+        """To be filled in...
+
+        Args:
+            matrix: To be filled in...
+            min_value: To be filled in...
+            max_depth: To be filled in...
+
+        Returns:
+            To be filled in...
+        """
         if min_value is None:
             min_value = self.min_value
         if max_depth is None:

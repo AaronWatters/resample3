@@ -1,15 +1,17 @@
-"""
-Helpers for creating and applying 3D affine transformation matrices.
-"""
+"""To be filled in..."""
 
 import numpy as np
 from typing import Optional, Sequence
 
 def apply_matrix_to_vector(matrix: np.ndarray, vector: Sequence[float]) -> np.ndarray:
-    """
-    Apply a 4x4 affine transformation matrix to a 3D coordinate vector.
-    The input vector should be a 3-element array-like representing (x, y, z).
-    The output will be a 3-element numpy array representing the transformed coordinates.
+    """To be filled in...
+
+    Args:
+        matrix: To be filled in...
+        vector: To be filled in...
+
+    Returns:
+        To be filled in...
     """
     if matrix.shape != (4, 4):
         raise ValueError(f"Matrix must be 4x4, got shape {matrix.shape}")
@@ -31,6 +33,16 @@ def apply_matrix_to_vector(matrix: np.ndarray, vector: Sequence[float]) -> np.nd
     return transformed_vector
 
 def scale_matrix(sx: float, sy: Optional[float] = None, sz: Optional[float] = None) -> np.ndarray:
+    """To be filled in...
+
+    Args:
+        sx: To be filled in...
+        sy: To be filled in...
+        sz: To be filled in...
+
+    Returns:
+        To be filled in...
+    """
     if sy is None:
         sy = sx
     if sz is None:
@@ -46,6 +58,16 @@ def scale_matrix(sx: float, sy: Optional[float] = None, sz: Optional[float] = No
     )
 
 def translation_matrix(tx: float, ty: float, tz: float) -> np.ndarray:
+    """To be filled in...
+
+    Args:
+        tx: To be filled in...
+        ty: To be filled in...
+        tz: To be filled in...
+
+    Returns:
+        To be filled in...
+    """
     return np.array(
         [
             [1.0, 0.0, 0.0, tx],
@@ -57,6 +79,14 @@ def translation_matrix(tx: float, ty: float, tz: float) -> np.ndarray:
     )
 
 def rotation_matrix_z(angle_radians: float) -> np.ndarray:
+    """To be filled in...
+
+    Args:
+        angle_radians: To be filled in...
+
+    Returns:
+        To be filled in...
+    """
     #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
     sin_a = np.sin(angle_radians)
@@ -71,6 +101,14 @@ def rotation_matrix_z(angle_radians: float) -> np.ndarray:
     )
 
 def rotation_matrix_y(angle_radians: float) -> np.ndarray:
+    """To be filled in...
+
+    Args:
+        angle_radians: To be filled in...
+
+    Returns:
+        To be filled in...
+    """
     #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
     sin_a = np.sin(angle_radians)
@@ -85,6 +123,14 @@ def rotation_matrix_y(angle_radians: float) -> np.ndarray:
     )   
 
 def rotation_matrix_x(angle_radians: float) -> np.ndarray:
+    """To be filled in...
+
+    Args:
+        angle_radians: To be filled in...
+
+    Returns:
+        To be filled in...
+    """
     #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
     sin_a = np.sin(angle_radians)
@@ -110,10 +156,18 @@ def projection_matrix(
     ry: float = 0.0,
     rz: float = 0.0,
 ) -> np.ndarray:
-    """
-    project coordinates of from_shape3d to to_shape2d, with optional 
-    scaling fit the input shape within the output shape and
-    rotations around each axis in radians.
+    """To be filled in...
+
+    Args:
+        from_shape3d: To be filled in...
+        to_shape2d: To be filled in...
+        scales: To be filled in...
+        rx: To be filled in...
+        ry: To be filled in...
+        rz: To be filled in...
+
+    Returns:
+        To be filled in...
     """
     from_shape3d = np.asarray(from_shape3d, dtype=np.float64)
     to_shape2d = np.asarray(to_shape2d, dtype=np.float64)
