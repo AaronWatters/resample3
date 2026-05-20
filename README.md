@@ -1,5 +1,7 @@
 # resample3
-Map volume output coordinates to input coordinates using nearest neighbor interpolation using a matrix.
+Special purpose python extension for resampling and projecting volume data.
+
+<img src="demo.png" width="500"/>
 
 ## Build
 
