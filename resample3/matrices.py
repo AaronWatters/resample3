@@ -3,8 +3,9 @@ Helpers for creating and applying 3D affine transformation matrices.
 """
 
 import numpy as np
+from typing import Optional, Sequence
 
-def apply_matrix_to_vector(matrix, vector):
+def apply_matrix_to_vector(matrix: np.ndarray, vector: Sequence[float]) -> np.ndarray:
     """
     Apply a 4x4 affine transformation matrix to a 3D coordinate vector.
     The input vector should be a 3-element array-like representing (x, y, z).
@@ -29,7 +30,7 @@ def apply_matrix_to_vector(matrix, vector):
     transformed_vector = transformed_homogeneous[:3] / w
     return transformed_vector
 
-def scale_matrix(sx, sy=None, sz=None):
+def scale_matrix(sx: float, sy: Optional[float] = None, sz: Optional[float] = None) -> np.ndarray:
     if sy is None:
         sy = sx
     if sz is None:
@@ -44,7 +45,7 @@ def scale_matrix(sx, sy=None, sz=None):
         dtype=np.float64,
     )
 
-def translation_matrix(tx, ty, tz):
+def translation_matrix(tx: float, ty: float, tz: float) -> np.ndarray:
     return np.array(
         [
             [1.0, 0.0, 0.0, tx],
@@ -55,7 +56,7 @@ def translation_matrix(tx, ty, tz):
         dtype=np.float64,
     )
 
-def rotation_matrix_z(angle_radians):
+def rotation_matrix_z(angle_radians: float) -> np.ndarray:
     #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
     sin_a = np.sin(angle_radians)
@@ -69,7 +70,7 @@ def rotation_matrix_z(angle_radians):
         dtype=np.float64,
     )
 
-def rotation_matrix_y(angle_radians):
+def rotation_matrix_y(angle_radians: float) -> np.ndarray:
     #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
     sin_a = np.sin(angle_radians)
@@ -83,7 +84,7 @@ def rotation_matrix_y(angle_radians):
         dtype=np.float64,
     )   
 
-def rotation_matrix_x(angle_radians):
+def rotation_matrix_x(angle_radians: float) -> np.ndarray:
     #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
     sin_a = np.sin(angle_radians)
@@ -101,7 +102,14 @@ def rotation_matrix_x(angle_radians):
 CUBE_DIAMETER = np.sqrt(3)
 DEFAULT_SCALING = 1/CUBE_DIAMETER
 
-def projection_matrix(from_shape3d, to_shape2d, scales=None, rx=0.0, ry=0.0, rz=0.0):
+def projection_matrix(
+    from_shape3d: Sequence[float],
+    to_shape2d: Sequence[float],
+    scales: Optional[Sequence[float]] = None,
+    rx: float = 0.0,
+    ry: float = 0.0,
+    rz: float = 0.0,
+) -> np.ndarray:
     """
     project coordinates of from_shape3d to to_shape2d, with optional 
     scaling fit the input shape within the output shape and
