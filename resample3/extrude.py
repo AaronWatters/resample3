@@ -1,9 +1,17 @@
 import numpy as np
+import numpy.typing as npt
+from typing import Optional, Sequence, Tuple
 
 from .project3dC import extrude3C
 
 
-def extrude(input_volume, matrix, shape=None, min_value=0.0, max_depth=None):
+def extrude(
+    input_volume: npt.ArrayLike,
+    matrix: npt.ArrayLike,
+    shape: Optional[Sequence[int]] = None,
+    min_value: float = 0.0,
+    max_depth: Optional[int] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     input_volume = np.ascontiguousarray(input_volume)
     matrix = np.ascontiguousarray(matrix, dtype=np.float64)
     if shape is None:
@@ -17,7 +25,13 @@ def extrude(input_volume, matrix, shape=None, min_value=0.0, max_depth=None):
 
 
 class Extruder:
-    def __init__(self, input_volume, shape=None, min_value=0.0, max_depth=None):
+    def __init__(
+        self,
+        input_volume: npt.ArrayLike,
+        shape: Optional[Sequence[int]] = None,
+        min_value: float = 0.0,
+        max_depth: Optional[int] = None,
+    ) -> None:
         self.input_volume = np.ascontiguousarray(input_volume)
         self.min_value = min_value
         if max_depth is None:
@@ -28,7 +42,12 @@ class Extruder:
         self.output_plane = np.empty(shape, dtype=self.input_volume.dtype, order="C")
         self.output_depths = np.empty(shape, dtype=np.float64, order="C")
 
-    def extrude(self, matrix, min_value=None, max_depth=None):
+    def extrude(
+        self,
+        matrix: npt.ArrayLike,
+        min_value: Optional[float] = None,
+        max_depth: Optional[int] = None,
+    ) -> Tuple[np.ndarray, np.ndarray]:
         if min_value is None:
             min_value = self.min_value
         if max_depth is None:
