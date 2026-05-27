@@ -133,12 +133,6 @@ class Slicer:
         """
         if min_value is None:
             min_value = self.min_value
-        slice(
-            self.input_volume,
-            depth,
-            invmatrix,
-            shape=self.output_matrix.shape,
-            min_value=min_value,
-            output_matrix=self.output_matrix,
-        )
+        invmatrix = np.ascontiguousarray(invmatrix, dtype=np.float64)
+        slice3dC(self.output_matrix, self.input_volume, depth, invmatrix, min_value)
         return self.output_matrix
