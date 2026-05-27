@@ -4,7 +4,7 @@ import numpy
 
 setup(
     name="resample3",
-    version="0.0.0",
+    #version="0.0.0", # Version kept in pyproject.toml
     packages=find_packages(),
     ext_modules=[
         Extension(
