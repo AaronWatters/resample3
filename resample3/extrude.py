@@ -12,17 +12,17 @@ def extrude(
     min_value: float = 0.0,
     max_depth: Optional[int] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """To be filled in...
+    """Extrude a 3D volume into a 2D image.
 
     Args:
-        input_volume: To be filled in...
-        matrix: To be filled in...
-        shape: To be filled in...
-        min_value: To be filled in...
-        max_depth: To be filled in...
+        input_volume: The 3D volume to extrude.
+        matrix: The projection matrix.
+        shape: The shape of the output 2D image.
+        min_value: The minimum value for the output image.
+        max_depth: The maximum depth for the output image.
 
     Returns:
-        To be filled in...
+        A tuple containing the extruded 2D image and the corresponding depth values.
     """
     input_volume = np.ascontiguousarray(input_volume)
     matrix = np.ascontiguousarray(matrix, dtype=np.float64)
@@ -37,7 +37,7 @@ def extrude(
 
 
 class Extruder:
-    """To be filled in..."""
+    """A class for extruding 3D volumes into 2D images."""
 
     def __init__(
         self,
@@ -46,13 +46,13 @@ class Extruder:
         min_value: float = 0.0,
         max_depth: Optional[int] = None,
     ) -> None:
-        """To be filled in...
+        """Initialize the Extruder.
 
         Args:
-            input_volume: To be filled in...
-            shape: To be filled in...
-            min_value: To be filled in...
-            max_depth: To be filled in...
+            input_volume: The 3D volume to extrude.
+            shape: The shape of the output 2D image.
+            min_value: The minimum value for the output image; values at or below are ignored.
+            max_depth: The maximum depth for the output image.
         """
         self.input_volume = np.ascontiguousarray(input_volume)
         self.min_value = min_value
@@ -70,15 +70,15 @@ class Extruder:
         min_value: Optional[float] = None,
         max_depth: Optional[int] = None,
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """To be filled in...
+        """Extrude the 3D volume into the preallocated output arrays.
 
         Args:
-            matrix: To be filled in...
-            min_value: To be filled in...
-            max_depth: To be filled in...
+            matrix: The projection matrix.
+            min_value: The minimum value for the output image; values at or below are ignored.
+            max_depth: The maximum depth for the output image.
 
         Returns:
-            To be filled in...
+            A tuple containing the extruded 2D image and the corresponding depth values.
         """
         if min_value is None:
             min_value = self.min_value
