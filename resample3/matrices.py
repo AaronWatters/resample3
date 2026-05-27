@@ -4,14 +4,14 @@ import numpy as np
 from typing import Optional, Sequence
 
 def apply_matrix_to_vector(matrix: np.ndarray, vector: Sequence[float]) -> np.ndarray:
-    """To be filled in...
+    """Apply a 4x4 affine transformation matrix to a 3D vector.
 
     Args:
-        matrix: To be filled in...
-        vector: To be filled in...
+        matrix: 4 x 4 affine transformation matrix.
+        vector: 3D vector to transform.
 
     Returns:
-        To be filled in...
+        Transformed 3D vector.
     """
     if matrix.shape != (4, 4):
         raise ValueError(f"Matrix must be 4x4, got shape {matrix.shape}")
@@ -33,15 +33,15 @@ def apply_matrix_to_vector(matrix: np.ndarray, vector: Sequence[float]) -> np.nd
     return transformed_vector
 
 def scale_matrix(sx: float, sy: Optional[float] = None, sz: Optional[float] = None) -> np.ndarray:
-    """To be filled in...
+    """Create a 4x4 scaling matrix.
 
     Args:
-        sx: To be filled in...
-        sy: To be filled in...
-        sz: To be filled in...
+        sx: Scale factor along the x-axis.
+        sy: Scale factor along the y-axis.
+        sz: Scale factor along the z-axis.
 
     Returns:
-        To be filled in...
+        4x4 scaling matrix.
     """
     if sy is None:
         sy = sx
@@ -58,15 +58,15 @@ def scale_matrix(sx: float, sy: Optional[float] = None, sz: Optional[float] = No
     )
 
 def translation_matrix(tx: float, ty: float, tz: float) -> np.ndarray:
-    """To be filled in...
+    """Create a 4x4 translation matrix.
 
     Args:
-        tx: To be filled in...
-        ty: To be filled in...
-        tz: To be filled in...
+        tx: Translation along the x-axis.
+        ty: Translation along the y-axis.
+        tz: Translation along the z-axis.
 
     Returns:
-        To be filled in...
+        4x4 translation matrix.
     """
     return np.array(
         [
@@ -79,13 +79,13 @@ def translation_matrix(tx: float, ty: float, tz: float) -> np.ndarray:
     )
 
 def rotation_matrix_z(angle_radians: float) -> np.ndarray:
-    """To be filled in...
+    """Create a 4x4 rotation matrix around the z-axis.
 
     Args:
-        angle_radians: To be filled in...
+        angle_radians: Rotation angle in radians.
 
     Returns:
-        To be filled in...
+        4x4 rotation matrix.
     """
     #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
@@ -101,13 +101,13 @@ def rotation_matrix_z(angle_radians: float) -> np.ndarray:
     )
 
 def rotation_matrix_y(angle_radians: float) -> np.ndarray:
-    """To be filled in...
+    """Create a 4x4 rotation matrix around the y-axis.
 
     Args:
-        angle_radians: To be filled in...
+        angle_radians: Rotation angle in radians.
 
     Returns:
-        To be filled in...
+        4x4 rotation matrix.
     """
     #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
@@ -123,13 +123,13 @@ def rotation_matrix_y(angle_radians: float) -> np.ndarray:
     )   
 
 def rotation_matrix_x(angle_radians: float) -> np.ndarray:
-    """To be filled in...
+    """Create a 4x4 rotation matrix around the x-axis.
 
     Args:
-        angle_radians: To be filled in...
+        angle_radians: Rotation angle in radians.
 
     Returns:
-        To be filled in...
+        4x4 rotation matrix.
     """
     #angle_radians = np.radians(angle_degrees)
     cos_a = np.cos(angle_radians)
@@ -156,18 +156,18 @@ def projection_matrix(
     ry: float = 0.0,
     rz: float = 0.0,
 ) -> np.ndarray:
-    """To be filled in...
+    """Create a projection matrix from a 3D shape to a 2D shape.
 
     Args:
-        from_shape3d: To be filled in...
-        to_shape2d: To be filled in...
-        scales: To be filled in...
-        rx: To be filled in...
-        ry: To be filled in...
-        rz: To be filled in...
+        from_shape3d: Source 3D shape (depth, height, width).
+        to_shape2d: Target 2D shape (height, width).
+        scales: Scale factors for each axis.
+        rx: Rotation around the x-axis in radians.
+        ry: Rotation around the y-axis in radians.
+        rz: Rotation around the z-axis in radians.
 
     Returns:
-        To be filled in...
+        4x4 projection matrix.
     """
     from_shape3d = np.asarray(from_shape3d, dtype=np.float64)
     to_shape2d = np.asarray(to_shape2d, dtype=np.float64)
